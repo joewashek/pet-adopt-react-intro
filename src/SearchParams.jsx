@@ -1,77 +1,99 @@
-import { useState,useContext } from "react";
+import { useState, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import fetchSearch from "./fetchSearch";
 import useBreedList from "./useBreedList";
 import Results from "./Results";
 import AdoptedPetContext from "./AdoptedPetContext";
-const ANIMALS = ["bird","dog","cat","reptile","rabbit"];
+const ANIMALS = ["bird", "dog", "cat", "reptile", "rabbit"];
 
 const SearchParams = () => {
-    const [requestParams, setRequestParams] = useState({
-        location: "",
-        animal: "",
-        breed: ""
-    });
-    const [animal,setAnimal] = useState("");
+  const [requestParams, setRequestParams] = useState({
+    location: "",
+    animal: "",
+    breed: "",
+  });
+  const [animal, setAnimal] = useState("");
 
-    const [breeds] = useBreedList(animal);
+  const [breeds] = useBreedList(animal);
 
-    const [adoptedPet] = useContext(AdoptedPetContext);
+  const [adoptedPet] = useContext(AdoptedPetContext);
 
-    const results = useQuery({queryKey: ["search",requestParams], queryFn: fetchSearch});
-    const pets = results?.data?.pets ?? [];
-    
-        return (
-        <div className="search-params">
-            <form onSubmit={e => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const obj = {
-                    animal: formData.get("animal") ?? "",
-                    breed: formData.get("breed") ?? "",
-                    location: formData.get("location") ?? ""
-                };
-                setRequestParams(obj);
-                }}
-            >
-              {
-                adoptedPet ? (
-                  <div className="pet image-container">
-                    <img src={adoptedPet.images[0]} alt={adoptedPet.name}/>
-                  </div>
-                ) : null
-              }
-                <label htmlFor="location">
-                    Location
-                </label>
-                <input
-                    name="location"
-                    id="location" 
-                    placeholder="Enter a location" 
-                 />
-                 <label htmlFor="animal">
-                    Animal
-                </label>
-                <select id="animal" value={animal} onChange={e => {setAnimal(e.target.value);}}>
-                    <option></option>
-                    {ANIMALS.map(animal => {
-                        return <option key={animal}>{animal}</option>
-                    })}
-                </select>
-                <label htmlFor="breed">
-                    Breed
-                </label>
-                <select id="breed" disabled={breeds.length === 0} name="breed">
-                    <option></option>
-                    {breeds.map(breed => {
-                        return <option key={breed}>{breed}</option>
-                    })}
-                </select>
-                <button>Submit</button>
-            </form>
-            <Results pets={pets} />
-        </div>
-    )
-}
+  const results = useQuery({
+    queryKey: ["search", requestParams],
+    queryFn: fetchSearch,
+  });
+  const pets = results?.data?.pets ?? [];
 
-export default SearchParams
+  return (
+    <div className="mx-auto my-0 w-11/12">
+      <form
+        className="mb-10 flex flex-col items-center justify-center rounded-lg bg-gray-200 p-10 shadow-lg"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const obj = {
+            animal: formData.get("animal") ?? "",
+            breed: formData.get("breed") ?? "",
+            location: formData.get("location") ?? "",
+          };
+          setRequestParams(obj);
+        }}
+      >
+        {adoptedPet ? (
+          <div className="pet image-container">
+            <img src={adoptedPet.images[0]} alt={adoptedPet.name} />
+          </div>
+        ) : null}
+        <label htmlFor="location">
+          Location
+          <input
+            type="text"
+            className="search-input"
+            name="location"
+            id="location"
+            placeholder="Enter a location"
+          />
+        </label>
+
+        <label htmlFor="animal">
+          Animal
+          <select
+            className="search-input"
+            id="animal"
+            value={animal}
+            onChange={(e) => {
+              setAnimal(e.target.value);
+            }}
+          >
+            <option></option>
+            {ANIMALS.map((animal) => {
+              return <option key={animal}>{animal}</option>;
+            })}
+          </select>
+        </label>
+
+        <label htmlFor="breed">
+          Breed
+          <select
+            className="search-input grayed-out-disabled"
+            id="breed"
+            disabled={breeds.length === 0}
+            name="breed"
+          >
+            <option></option>
+            {breeds.map((breed) => {
+              return <option key={breed}>{breed}</option>;
+            })}
+          </select>
+        </label>
+
+        <button className="rounded border-none bg-orange-500 px-6 py-2 text-white hover:opacity-50">
+          Submit
+        </button>
+      </form>
+      <Results pets={pets} />
+    </div>
+  );
+};
+
+export default SearchParams;
